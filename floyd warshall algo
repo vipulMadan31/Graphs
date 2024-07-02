@@ -4,7 +4,7 @@
 using namespace std;
 
 const int INF = 1e9;
-
+//takes edges as input : {u,v,wt}
 vector<vector<int>> floydWarshall(const vector<vector<int>>& graph) {
     int num_vertices = graph.size();
     vector<vector<int>> dist(num_vertices, vector<int>(num_vertices, INF));

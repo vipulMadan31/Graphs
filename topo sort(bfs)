@@ -1,0 +1,29 @@
+// Function to return list containing vertices in Topological order.
+    vector<int> topoSort(int V, vector<int> adj[]) {
+        int indegree[V] = {0};
+        queue<int> q;
+        
+        for (int i = 0; i < V; i++) {
+            for (auto y : adj[i])
+                indegree[y]++;
+        }
+        
+        // Push nodes with 0 indegree into the queue
+        for (int i = 0; i < V; i++) {
+            if (indegree[i] == 0)
+                q.push(i);
+        }
+        
+        vector<int> ans;
+        while (!q.empty()) {
+            auto a = q.front();
+            q.pop();
+            ans.emplace_back(a);
+            for (auto x : adj[a]) {
+                indegree[x]--;
+                if (indegree[x] == 0)
+                    q.push(x);
+            }
+        }
+        return ans;
+    }

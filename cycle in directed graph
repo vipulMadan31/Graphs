@@ -1,0 +1,22 @@
+  bool help(int i, int V, vector<int> adj[], int vis[], int pathVis[]){
+      vis[i]=1;
+      pathVis[i]=1;
+      for(auto x : adj[i]){
+          if(!vis[x]){
+              if(help(x,V,adj,vis,pathVis)) return true;
+          }
+          else if(pathVis[x]==1) return true;
+      }
+      pathVis[i]=0;
+      return false;
+  }
+
+  // Function to detect cycle in a directed graph.
+  bool isCyclic(int V, vector<int> adj[]) {
+      int vis[V]={0};
+      int pathVis[V]={0};
+      for(int i=0;i<V;i++){
+          if(!vis[i]) if(help(i,V,adj,vis,pathVis)) return true;
+      }
+      return false;
+  }

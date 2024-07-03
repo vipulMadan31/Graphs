@@ -1,0 +1,43 @@
+Here is the code from the image:
+
+```cpp
+#include <iostream>
+#include <vector>
+using namespace std;
+
+class disjoint{
+    vector<int> size;
+    vector<int> parent;
+public:
+    disjoint(int n){
+        size.resize(n+1,1);
+        parent.resize(n+1);
+        for(int i=0;i<=n;i++){
+            parent[i]=i;
+        }
+    }
+
+    int findUpar(int n){
+        if(parent[n]==n) return n; // if parent is same, return
+        return parent[n]=findUpar(parent[n]); // else yaad hi krlo(it does the req task)
+    }
+
+    void Union(int u, int v){
+        int parU=findUpar(u);
+        int parV=findUpar(v); // dono ke parent nikaal lo
+        if(parU==parV) return; // already same
+        if(size[parU]<size[parV]){
+            size[parV]+=size[parU]; // increase size
+            parent[parU]=parV; // chotte wale ko bade ka parent banado
+        }
+        else{
+            size[parU]+=size[parV];
+            parent[parV]=parU; // just ulta case
+        }
+    }
+
+    bool samePar(int a, int b){
+        return findUpar(a)==findUpar(b);
+    }
+};
+```

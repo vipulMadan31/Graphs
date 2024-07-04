@@ -1,0 +1,52 @@
+  void dfs(int i, vector<int>& visited, stack<int>& s, vector<vector<int>>& adj){
+      visited[i]=1;
+      for(auto x: adj[i]){
+          if(!visited[x]) dfs(x,visited,s,adj);
+      }
+      s.push(i);
+  }
+
+  void dfs2(int i, vector<int>& visited, vector<vector<int>>& adj){
+      visited[i]=1;
+      for(auto x: adj[i]){
+          if(!visited[x]) dfs2(x,visited,adj);
+      }
+  }
+
+  // Function to find number of strongly connected components in the graph.
+  int kosaraju(int V, vector<vector<int>>& adj)
+  {
+      // approach is to reverse the edges of the graph.
+      // all the SCC would still be connected, but others will not be.
+      // so, we can do dfs and count the no of connected components
+
+      // phle hum reverse krge, so its necessary to store the graph in order of its fds
+      vector<int> visited(V,0);
+      stack<int> s;
+      for(int i=0;i<V;i++){
+          if(!visited[i]) dfs(i,visited,s,adj);
+      }
+      
+      // now we got stack in rev order of dfs completion (ie actual order);
+      // now take transpose
+      vector<vector<int>> adjT(V);
+      for(int i=0;i<V;i++){
+          for(auto x: adj[i]){
+              adjT[x].emplace_back(i);
+          }
+      }
+
+      // now in original order, do dfs across
+      vector<int> visited2(V,0);
+      int ans=0;
+      while(!s.empty()){
+          int a=s.top();
+          s.pop();
+          if(!visited2[a]){
+              dfs2(a,visited2,adjT);
+              ans++;
+          }
+      }
+      // storing the original order, is neccessary to count the SCC correctly. warna glt ho skta.
+      return ans;
+  }

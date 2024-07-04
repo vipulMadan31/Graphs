@@ -1,0 +1,26 @@
+    bool dfs(vector<vector<int>>& adj, int node, int color,vector<int>& ans){
+        ans[node]=color;//make this node 
+
+        for(auto x: adj[node]){
+            if(ans[x]==-1){
+                if(dfs(adj,x,!color,ans)==false) return false;
+            }
+            else if(ans[x]==color) return false;//same clor aagya
+        }
+        return true;
+    }
+    bool isBipartite(vector<vector<int>>& graph) {
+        //what we do is make 2 colors 0 and 1
+        //and try ki adjacent colors should be different
+        //agar humesha diff color hua th bipartitate
+        //agar ek bhi hua, toh its not
+        //it can happen only if odd cycle length ho
+        int n=graph.size();
+        vector<int> ans(n,-1);
+        for(int i=0;i<n;i++){
+            if(ans[i]==-1){
+                if(!dfs(graph,i,0,ans)) return false;//start from node i and color 0
+            }//ek bhi comp false ho toh return false
+        }
+        return true;
+    }

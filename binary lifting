@@ -1,33 +1,35 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-void giveParent(vector<int>& parent, int root, vector<vector<int>>& adj) {
+void giveParent(vector<int>& parent, int root, vector<vector<int>>& adj, vector<int>& depth) {
     for (auto x : adj[root]) {
-        if (x != root) {
+        if (x != parent[root]) {
             parent[x] = root;
-            giveParent(parent, x, adj);
+            depth[x] = depth[root] + 1;
+            giveParent(parent, x, adj, depth);
         }
     }
 }
 
 int giveKthParent(vector<vector<int>>& dp, int k, int node) {
     if (k == 0) return node;
-    int i = log2(k); // just smaller
+    int i = log2(k); // largest power of 2 less than or equal to k
     int x = dp[node][i];
     return giveKthParent(dp, k - (1 << i), x);
 }
 
-vector<vector<int>> binaryLifting(vector<vector<int>>& adj, int n) {
+vector<vector<int>> binaryLifting(vector<vector<int>>& adj, int n, vector<int>& depth) {
     vector<int> parent(n + 1, -1);
-    giveParent(parent, 1, adj); // assume the root is 1
+    depth[1] = 0; // assuming root is node 1 and its depth is 0
+    giveParent(parent, 1, adj, depth);
 
-    int max_parents = 2;
-    vector<vector<int>> dp(n + 1, vector<int>(max_parents + 1, -1)); // dp[i][j] represents jth parent of node i
+    int max_parents = log2(n) + 1;
+    vector<vector<int>> dp(n + 1, vector<int>(max_parents + 1, -1));
 
     for (int i = 1; i <= n; i++) dp[i][0] = parent[i];
 
-    for (int i = 1; i <= n; i++) {
-        for (int j = 1; (1 << j) < n; j++) {
+    for (int j = 1; (1 << j) <= n; j++) {
+        for (int i = 1; i <= n; i++) {
             if (dp[i][j - 1] != -1) {
                 int x = dp[i][j - 1];
                 dp[i][j] = dp[x][j - 1];
@@ -35,15 +37,37 @@ vector<vector<int>> binaryLifting(vector<vector<int>>& adj, int n) {
         }
     }
 
-    // Return the dp table
     return dp;
+}
+
+int LCA(int u, int v, vector<vector<int>>& dp, vector<int>& depth) {
+    if (depth[u] < depth[v]) swap(u, v);
+
+    int diff = depth[u] - depth[v];
+    for (int i = 0; i < dp[0].size(); i++) {
+        if ((diff >> i) & 1) {
+            u = dp[u][i];
+        }
+    }
+
+    if (u == v) return u;
+
+    for (int i = dp[0].size() - 1; i >= 0; i--) {
+        if (dp[u][i] != -1 && dp[u][i] != dp[v][i]) {
+            u = dp[u][i];
+            v = dp[v][i];
+        }
+    }
+
+    return dp[u][0];
 }
 
 int main() {
     vector<vector<int>> adj = {{}, {2, 3}, {4, 5}, {6, 7}, {}, {}, {}, {}};
     int n = 7;
+    vector<int> depth(n + 1, 0);
 
-    vector<vector<int>> dp = binaryLifting(adj, n);
+    vector<vector<int>> dp = binaryLifting(adj, n, depth);
 
     // Debugging: Print dp table
     for (int i = 1; i <= n; i++) {
@@ -52,6 +76,10 @@ int main() {
         }
         cout << endl;
     }
+
+    // Find LCA of nodes 4 and 5
+    int u = 4, v = 5;
+    cout << "LCA of " << u << " and " << v << " is: " << LCA(u, v, dp, depth) << endl;
 
     return 0;
 }

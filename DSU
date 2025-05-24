@@ -1,9 +1,12 @@
 //use only for undirected graphs
 class disjoint{
+    public:
     vector<int> size;
     vector<int> parent;
-public:
+    set<int> leaders;
+    int n;
     disjoint(int n){
+        this->n=n;
         size.resize(n+1,1);
         parent.resize(n+1);
         for(int i=0;i<=n;i++){
@@ -32,6 +35,12 @@ public:
 
     bool samePar(int a, int b){
         return findUpar(a)==findUpar(b);
+    }
+    set<int> getLeaders(){
+        for(int i=1;i<=n;i++){
+            leaders.insert(this->findUpar(i));
+        }
+        return leaders;
     }
 };
 ```

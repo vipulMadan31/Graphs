@@ -1,34 +1,25 @@
-class Solution
-{
-  public:
-    //Function to find the shortest distance of all the vertices
-    //from the source vertex S.
-    vector <int> dijkstra(int V, vector<vector<int>> adj[], int S){
-        set<pair<int,int>> st; //stores {dist,node} and sort acc to dist
-        st.insert(make_pair(0,S));
-        vector<int> dis(V,1e9);
-        dis[S]=0;
-        while(!st.empty()){
-            auto a=*(st.begin());
-            auto node=a.second;
-            auto dist=a.first;
-            st.erase(a);
-            for(auto x :adj[node]){
-                int adjWt=x[1]; //aise node, adjnode jaisi cheezien bana is helpful coz
-                                //isse confusion nhi hoti kon kya h
-                int adjNode=x[0];
-                if(dis[adjNode]>dis[node]+adjWt){
-                    if(dis[adjNode]!=1e9){
-                        //erase the previous one, this is why it most cases it can be more optimal
-                        //--than PQ, as we can erase bigger distances where there is no need to iterate.
-                        //however, it also takes O(logn), so may not be helpful in some cases.
-                        st.erase(make_pair(dis[adjNode],adjNode));
-                    }
-                    dis[adjNode]=dis[node]+adjWt;
-                    st.insert(make_pair(dis[adjNode],adjNode));
-                }
+void help(vector<vector<pii>>& adj, int n){
+    vec dis(n+1,1e16);
+    dis[1]=0;
+    priority_queue<pii> pq;//stores {-1*wt,node}
+    pq.push({0,1});
+    while(!pq.empty()){
+        auto a=pq.top();
+        pq.pop();
+        int currWt=-1*a.ff;
+        int u=a.ss;
+        if(currWt>dis[u]) continue;
+        for(auto& x: adj[u]){
+            int wt=x.ss;
+            int v=x.ff;
+            if(dis[v]>dis[u]+wt){
+                dis[v]=dis[u]+wt;
+                pq.push({-dis[v],v});
             }
         }
-        return dis;
     }
-};
+    ffor(n){
+        cout<<dis[i+1]<<" ";
+    }
+    cout<<endl;
+}

@@ -1,42 +1,61 @@
-// Bellman-Ford Algorithm
-#include <vector>
-#include <stdexcept>
+int INF=1e16;
+//THIS CODE does standard bell ford, if neg cycle is present then all such nodes that are effected mien -1 retunr hota
+//nhi toh normal kaam, if you need to print cycle, stoe parents and backtrack
+long long bellmanFord(int n, const vector<vector<pair<int, int>>>& adj) {
+    vector<vector<long long>> dp(n, vector<long long>(n + 1, INF));
+    dp[0][0] = 0;
 
-using namespace std;
-
-struct Edge {
-    int source;
-    int destination;
-    int weight;
-};
-
-const int INF = 1e9;
-
-vector<int> bellmanFord(vector<Edge>& edges, int num_vertices, int source) {
-    vector<int> distances(num_vertices, INF);
-    distances[source] = 0;
-
-    for (int i = 0; i < num_vertices - 1; i++) {
-        for (const Edge& edge : edges) {
-            int u = edge.source;
-            int v = edge.destination;
-            int weight = edge.weight;
-
-            if (distances[u] != INF && distances[u] + weight < distances[v]) {
-                distances[v] = distances[u] + weight;
+    // Standard Bellman-Ford DP
+    for (int e = 1; e <= n; ++e) {
+        for (int v = 0; v < n; ++v) {
+            dp[v][e] = dp[v][e - 1];
+        }
+        for (int u = 0; u < n; ++u) {
+            if (dp[u][e - 1] == INF) continue;
+            for (auto &x : adj[u]) {
+                int v=x.ff; int wt=x.ss;
+                if (dp[u][e - 1] + wt < dp[v][e]) {
+                    dp[v][e] = dp[u][e - 1] + wt;
+                }
             }
         }
     }
 
-    for (const Edge& edge : edges) {
-        int u = edge.source;
-        int v = edge.destination;
-        int weight = edge.weight;
-
-        if (distances[u] != INF && distances[u] + weight < distances[v]) {
-            throw runtime_error("Graph contains a negative-weight cycle");
+    // Step 2: Find nodes involved in or affected by a negative cycle
+    vector<bool> inCycle(n, false);
+    for (int u = 0; u < n; ++u) {
+        if (dp[u][n - 1] == INF) continue;
+        for (auto &x : adj[u]) {
+            int v=x.ff; int wt=x.ss;
+            if (dp[u][n - 1] + wt < dp[v][n - 1]) {
+                inCycle[v] = true;
+            }
         }
     }
 
-    return distances;
+    // Step 3: BFS from cycle-affected nodes to see if n-1 is reachable
+    vector<bool> visited(n, false);
+    queue<int> q;
+    for (int i = 0; i < n; ++i) {
+        if (inCycle[i]) {
+            q.push(i);
+            visited[i] = true;
+        }
+    }
+
+    while (!q.empty()) {
+        int u = q.front(); q.pop();
+        for (auto &x : adj[u]) {
+            int v=x.ff; int wt=x.ss;
+            if (!visited[v]) {
+                visited[v] = true;
+                q.push(v);
+            }
+        }
+    }
+
+    // If n-1 is affected by a negative cycle
+    if (visited[n - 1]) return -1;
+
+    return (dp[n - 1][n - 1] == INF ? -1 : -dp[n - 1][n - 1]);
 }
